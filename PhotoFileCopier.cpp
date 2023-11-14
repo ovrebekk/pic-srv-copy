@@ -11,10 +11,10 @@ using namespace std;
 namespace fs = std::filesystem;
 
 // ffmpeg -i INPUT.MP4 -c:v libx264 -preset slow -vf scale=1920:1080 -crf 22 -c:a copy OUTPUT.mp4
-string testpath = "E:\\bilder\\fotografi\\2003";
 
 uint64_t filesize_total = 0;
 int file_count = 0;
+string destinationPath, sourcePath;
 
 void recursive_dir_search(const fs::path& cur_path, bool in_pic_folder = false)
 {
@@ -27,7 +27,6 @@ void recursive_dir_search(const fs::path& cur_path, bool in_pic_folder = false)
 				dir_entry.path().filename().string()[2] == '_' && 
 				dir_entry.path().filename().string()[5] == '_')
 			{
-				//cout << "- " << fs::last_write_time(dir_entry) << " " << dir_entry.path().filename() << endl;
 				// Valid picture folder found
 				recursive_dir_search(dir_entry.path(), true);
 				if (ConfigFileReader::configFileExistsInPath(dir_entry))
@@ -59,11 +58,24 @@ void recursive_dir_search(const fs::path& cur_path, bool in_pic_folder = false)
 	}
 }
 
-int main()
+int main(int argc, char* argv[])
 {
-	fs::current_path(testpath);
-	fs::path start_path = fs::path(testpath);
-	cout << "PhotoFileCopier started" << endl;
+	if (argc < 3)
+	{
+		destinationPath = "c:\\test_folder";
+		sourcePath = "E:\\bilder\\fotografi\\2003";
+		cout << "ERROR: Invalid number of arguments. \nFirst argument is destination folder, second argument is source folder.\n";
+		//return 0;
+	}
+	else
+	{
+		destinationPath = argv[1];
+		sourcePath = argv[2];
+	}
+	cout << "Photo File Copier started\nDestination folder: " << destinationPath << ", Source folder: " << sourcePath << endl;
+	
+	fs::current_path(sourcePath);
+	fs::path start_path = fs::path(sourcePath);
 
 	recursive_dir_search(start_path);
 	cout << "Files: " << file_count << ", Size total: " << (filesize_total / 1024 / 1024) << " MB\n";

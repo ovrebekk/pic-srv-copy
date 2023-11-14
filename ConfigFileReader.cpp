@@ -30,6 +30,7 @@ ConfigFileReader::ConfigFileReader(void)
 	mFileDateMatch = false;
 	mForceUpdate = false;
 }
+
 bool ConfigFileReader::read(const std::filesystem::path& path, const fs::file_time_type & time)
 {
 	fstream	cfg_file;
@@ -43,6 +44,7 @@ bool ConfigFileReader::read(const std::filesystem::path& path, const fs::file_ti
 		{
 			cfg_file_line = trim(cfg_file_line);
 			
+			// Skip empty lines
 			if (cfg_file_line == "") continue;
 			
 			// Check for a parameter identifier
@@ -58,6 +60,9 @@ bool ConfigFileReader::read(const std::filesystem::path& path, const fs::file_ti
 			else if (cfg_file_line == PARAM_FORCE_UPDATE_STR) {
 				currentType = PARAM_FORCE_UPDATE;
 			}
+			else if (cfg_file_line == PARAM_USERS_STR) {
+				currentType = PARAM_USERS;
+			}
 			else
 			{
 				int timesModified;
@@ -71,17 +76,22 @@ bool ConfigFileReader::read(const std::filesystem::path& path, const fs::file_ti
 					if (fileTime == fromFileTimeType(time)) {
 						mFileDateMatch = true;
 					}
+					currentType = PARAM_NONE;
 					break;
 				case PARAM_TIMES_MODIFIED:
 					timesModified = stoi(cfg_file_line);
 					if (timesModified > 0)
 					{
 						mTimesModified = timesModified;
-						currentType = PARAM_NONE;
 					}
+					currentType = PARAM_NONE;
 					break;
 				case PARAM_FORCE_UPDATE:
 					if (std::stoi(cfg_file_line) > 0) mForceUpdate = true;
+					currentType = PARAM_NONE;
+					break;
+				case PARAM_USERS:
+					mUserList.push_back(cfg_file_line);
 					break;
 				case PARAM_NONE:
 					break;
@@ -114,6 +124,14 @@ bool ConfigFileReader::write(const std::filesystem::path& path, const fs::file_t
 			cfg_file << fromFileTimeType(ftime) << endl;
 			cfg_file << PARAM_TIMES_MODIFIED_STR << endl;
 			cfg_file << mTimesModified << endl;
+			if (mUserList.size() > 0)
+			{
+				cfg_file << PARAM_USERS_STR << endl;
+				for(string user : mUserList)
+				{
+					cfg_file << user << endl;
+				}
+			}
 			cfg_file.close();
 			return true;
 		}

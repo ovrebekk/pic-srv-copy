@@ -7,10 +7,11 @@
 
 #define PARAM_DATE_LAST_MODIFIED_STR "date_last_modified:"
 #define PARAM_DATE_LAST_MODIFIED_INT_STR "date_last_modified_int:"
-#define PARAM_TIMES_MODIFIED_STR "times_modified:"
-#define PARAM_FORCE_UPDATE_STR "force_update:"
+#define PARAM_TIMES_MODIFIED_STR	"times_modified:"
+#define PARAM_FORCE_UPDATE_STR		"force_update:"
+#define PARAM_USERS_STR				"users:"
 
-typedef enum {PARAM_NONE, PARAM_DATE_LAST_MODIFIED, PARAM_DATE_LAST_MODIFIED_INT, PARAM_TIMES_MODIFIED, PARAM_FORCE_UPDATE} CfgFileParamTypes;
+typedef enum {PARAM_NONE, PARAM_DATE_LAST_MODIFIED, PARAM_DATE_LAST_MODIFIED_INT, PARAM_TIMES_MODIFIED, PARAM_FORCE_UPDATE, PARAM_USERS} CfgFileParamTypes;
 
 class ConfigFileReader
 {
@@ -19,6 +20,7 @@ private:
 	std::time_t mLastChangedTime;
 	bool mFileDateMatch;
 	bool mForceUpdate;
+	std::list<std::string> mUserList;
 public:
 	ConfigFileReader(void);
 	bool read(const std::filesystem::path& path, const std::filesystem::file_time_type& time);
